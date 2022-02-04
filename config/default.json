@@ -1,3 +1,6 @@
 {
-	"mongoURI": "mongodb+srv://bryanlin16899:hygnjutbm03@cluster0.ga1tl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+	"mongoURI": "mongodb+srv://bryanlin16899:hygnjutbm03@cluster0.ga1tl.mongodb.net/devconnector?retryWrites=true&w=majority",
+	"jwtSecret": "bryansecret",
+	"githubClientId": "3d3cf2e027c0105818e0",
+	"githubSecret": "9aafdb34d79443601efec444a8e55992a12dc6c5"
 }
