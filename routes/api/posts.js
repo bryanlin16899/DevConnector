@@ -30,7 +30,7 @@ router.post(
 
 			const post = await newPost.save();
 
-			res.status(200).json({ success: true, msg: post });
+			res.status(200).json(post);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error');
@@ -44,12 +44,9 @@ router.post(
 router.get('/', auth, async (req, res) => {
 	const posts = await Post.find().sort({ date: -1 });
 
-	if (!posts)
-		return res
-			.status(404)
-			.json({ success: false, msg: 'Not found any post.' });
+	if (!posts) return res.status(404).json({ msg: 'Not found any post.' });
 
-	res.status(200).json({ success: true, msg: posts });
+	res.status(200).json(posts);
 });
 
 // @route    GET api/posts/:id
@@ -60,11 +57,10 @@ router.get('/:post_id', auth, async (req, res) => {
 
 	if (!post)
 		return res.status(404).json({
-			success: false,
 			msg: `Not found post with id of ${req.params.post_id}.`,
 		});
 
-	res.status(200).json({ success: true, msg: post });
+	res.status(200).json(post);
 });
 
 // @route    DELETE api/posts/:post_id
@@ -76,19 +72,16 @@ router.delete('/:post_id', auth, async (req, res) => {
 
 		if (!post)
 			return res.status(404).json({
-				success: false,
 				msg: `Not found post with id of ${req.params.post_id}.`,
 			});
 
 		if (post.user.toString() !== req.user.id) {
-			return res
-				.status(401)
-				.json({ success: false, msg: 'User not authorized.' });
+			return res.status(401).json({ msg: 'User not authorized.' });
 		}
 
 		await post.remove();
 
-		res.status(200).json({ success: true, msg: 'Post deleted.' });
+		res.status(200).json({ msg: 'Post deleted.' });
 	} catch (err) {
 		console.error(err.message);
 		if (err.kind === 'ObjectId') {
@@ -110,9 +103,7 @@ router.put('/like/:post_id', auth, async (req, res) => {
 			post.likes.filter((like) => like.user.toString() === req.user.id)
 				.length > 0
 		) {
-			return res
-				.status(400)
-				.json({ success: false, msg: 'Post already liked.' });
+			return res.status(400).json({ msg: 'Post already liked.' });
 		}
 
 		post.likes.unshift({ user: req.user.id });
@@ -140,7 +131,7 @@ router.put('/unlike/:post_id', auth, async (req, res) => {
 		) {
 			return res
 				.status(400)
-				.json({ success: false, msg: 'Post has not yet been liked.' });
+				.json({ msg: 'Post has not yet been liked.' });
 		}
 
 		// Get remove index
@@ -177,7 +168,6 @@ router.post(
 
 			if (!post) {
 				return res.status(404).json({
-					success: false,
 					msg: `Not found post with id of ${req.params.post_id}.`,
 				});
 			}
@@ -193,7 +183,7 @@ router.post(
 
 			await post.save();
 
-			res.status(200).json({ success: true, msg: newComment });
+			res.status(200).json(post.comments);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error');
@@ -204,13 +194,12 @@ router.post(
 // @route    DELETE api/posts/comment/:post_id/:comment_id
 // @desc     Delete post by id
 // @access   Private
-router.delete('/:post_id/:comment_id', auth, async (req, res) => {
+router.delete('/comment/:post_id/:comment_id', auth, async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.post_id);
 
 		if (!post)
 			return res.status(404).json({
-				success: false,
 				msg: `Not found post with id of ${req.params.post_id}.`,
 			});
 
@@ -221,22 +210,19 @@ router.delete('/:post_id/:comment_id', auth, async (req, res) => {
 
 		if (removeIndex === -1) {
 			return res.status(404).json({
-				success: false,
 				msg: `Not found comment with id of ${req.params.comment_id}`,
 			});
 		}
 
 		if (post.comments[removeIndex].user.toString() !== req.user.id) {
-			return res
-				.status(401)
-				.json({ success: false, msg: 'User not authorized.' });
+			return res.status(401).json({ msg: 'User not authorized.' });
 		}
 
 		post.comments.splice('removeIndex', 1);
 
 		await post.save();
 
-		res.status(200).json({ success: true, msg: 'Comment deleted.' });
+		res.status(200).json({ msg: 'Comment deleted.' });
 	} catch (err) {
 		console.error(err.message);
 		if (err.kind === 'ObjectId') {
