@@ -6,7 +6,7 @@ const { check, validationResult } = require('express-validator');
 
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
-const { compare } = require('bcryptjs');
+const Post = require('../../models/Post');
 
 const router = express.Router();
 
@@ -67,6 +67,12 @@ router.post(
 		// Buile profile object
 		const profileFields = {};
 		profileFields.user = req.user.id;
+		// profileFields.company = company || '';
+		// profileFields.website = website || '';
+		// profileFields.location = location || '';
+		// profileFields.bio = bio || '';
+		// profileFields.status = status || '';
+		// profileFields.githubusername = githubusername || '';
 		if (company) profileFields.company = company;
 		if (website) profileFields.website = website;
 		if (location) profileFields.location = location;
@@ -104,7 +110,7 @@ router.post(
 			// Create
 			profile = await Profile.create(profileFields);
 
-			res.status(200).json({ success: true, data: profile });
+			res.status(200).json(profile);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error');
@@ -167,8 +173,8 @@ router.get('/user/:user_id', async (req, res) => {
 // @access   Private
 router.delete('/', auth, async (req, res) => {
 	try {
-		// @todo - remove users post
-
+		// Remove users post
+		await Post.deleteMany({ user: req.user.id });
 		// Remove profile
 		await Profile.findOneAndRemove({ user: req.user.id });
 		// Remove user
@@ -231,7 +237,7 @@ router.put(
 
 			await profile.save();
 
-			res.status(200).json({ success: true, msg: profile });
+			res.status(200).json(profile);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error.');
@@ -255,10 +261,7 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
 
 		await profile.save();
 
-		res.status(200).json({
-			success: true,
-			msg: 'Experience deleted.',
-		});
+		res.status(200).json(profile);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).send('Server Error.');
@@ -315,7 +318,7 @@ router.put(
 
 			await profile.save();
 
-			res.status(200).json({ success: true, msg: profile });
+			res.status(200).json(profile);
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).send('Server Error.');
@@ -339,10 +342,7 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
 
 		await profile.save();
 
-		res.status(200).json({
-			success: true,
-			msg: 'Education deleted.',
-		});
+		res.status(200).json(profile);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).send('Server Error.');
